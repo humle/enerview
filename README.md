@@ -1,4 +1,4 @@
-This project is a sollution to the Renewable Energy Explorer challenge in Nasa's Space App Challange Gothenburg, Sweden 2013.
+This project is a solution to the Renewable Energy Explorer challenge in Nasa's Space App Challange Gothenburg, Sweden 2013.
 
 Stunningly, the percentage of renewable energy in Earth's total supply has actually decreased over the last 40 years. 
 What happened to our world becoming more conscious, and not least, now having access to much more sophisticated technology than in the 70’s? 
