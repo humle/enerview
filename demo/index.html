@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>Enerview - Percentage of Renewable Energy</title>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+</head>
+<style>
+
+@font-face {
+    font-family: 'BebasNeueRegular';
+    src: url('fonts/BebasNeue-webfont.eot');
+    src: url('fonts/BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/BebasNeue-webfont.woff') format('woff'),
+         url('fonts/BebasNeue-webfont.ttf') format('truetype'),
+         url('fonts/BebasNeue-webfont.svg#BebasNeueRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+	font-size: 25px;
+	font-family: "BebasNeueRegular", sans-serif;
+	color: #4d4d4d; 
+}
+
+text {
+	fill: #4d4d4d; 
+}
+
+.chart { 
+  	background: #fff;
+}
+
+p {
+	font-size: 10px;
+	font-family: "BebasNeueRegular", sans-serif;
+}
+
+.axis path, .axis line {
+  	fill: none;
+	stroke: #4d4d4d;
+	color: #4d4d4d;
+	stroke-width: 4px;
+	shape-rendering: crispEdges;
+}
+
+#title {
+	margin-left: 30px;
+	font-size: 70px;
+	color: #4d4d4d;
+}
+
+#meta {
+	margin: 0;
+	margin-left: 30px;
+}
+
+#tooltip {
+	position: absolute;
+	width: auto;
+	height: auto;
+	padding: 10px;
+	background-color: white;
+	-webkit-border-top-right-radius: 10px;
+	-webkit-border-bottom-right-radius: 10px;
+	-moz-border-radius-topright: 10px;
+	-moz-border-radius-bottomright: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	pointer-events: none;
+	border: 1px solid #4d4d4d;
+	z-index: 100;
+}
+
+#tooltip.hidden {
+	display: none;
+}
+
+#tooltip p { 
+	margin: 0;
+	font-family: "BebasNeueRegular", sans-serif; 
+	font-size: 40px;
+	line-height: 40px;
+	color: #4d4d4d;
+}
+
+#xLine.hidden {
+	display: none;
+}
+
+#xLine {
+	position: absolute;
+	width: 4px;
+	height: 670px;
+	background: #ffffff;
+	z-index: 99;
+	left: 0px;
+	pointer-events: none;
+	border: 1px solid #4d4d4d;
+
+}
+
+</style>
+<body>
+	<div id="title">Percentage of Renewable Energy 1971-2007</div>
+	<div id="meta">Data Source, OECD Factbook 2010: Economic, Environmental and Social Statistics</div> 
+	<div id="tooltip" class="hidden">
+		<p><strong><span id="value">100</span>%</strong></p>
+	</div>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<div class="chart">
+	<div id="xLine"></div>
+</div>
+
+<script>
+
+var yearArray = [];
+var colorRange = ["#41AB5D", "#78C679", "#ADDD8E", "#D9F0A3", "#FFFFCC"];
+
+var csvFile = "OECDrenewableEnergyPercentage1971-2007";
+var format = d3.time.format("%Y");
+
+var strokeColor = "ffffff";
+
+var margin = {top: 20, right: 40, bottom: 30, left: 30};
+var width = document.body.clientWidth - margin.left - margin.right;
+var height = 700 - margin.top - margin.bottom;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height - 10, 0]);
+
+var z = d3.scale.ordinal()
+	.rangeBands([100, 0])
+    .range(colorRange);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .ticks(7);
+
+var yAxis = d3.svg.axis()
+    .scale(y);
+
+var yAxis = d3.svg.axis()
+    .scale(y);
+
+var stack = d3.layout.stack()
+    .offset("wiggle")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return d.year; })
+    .y(function(d) { return d.value; });
+
+var nest = d3.nest()
+    .key(function(d) { return d.key; });
+
+var area = d3.svg.area()
+	.interpolate("cardinal")
+    .x(function(d) { return x(d.year); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var svg = d3.select(".chart").append("svg")
+    .attr({
+    		"width": width + margin.left + margin.right,
+    		"height": height + margin.top + margin.bottom
+    	})
+    	.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var graph = d3.csv(csvFile, function(data) {
+  data.forEach(function(d) {
+  	d.year = format.parse(d.year);
+    	if (d.value)
+    		d.value = +d.value;
+  });
+
+var layers = stack(nest.entries(data));
+
+x.domain(d3.extent(data, function(d) { return d.year; }));
+y.domain([0, d3.max(data, function(d) { return d.y0 + d.y; })]);
+
+svg.selectAll(".layer")	
+	.data(layers)
+	.enter().append("path")
+	.attr("class", "layer")
+	.attr("d", function(d) { return area(d.values); })
+	.style("fill", function(d, i) { return z(i); });
+
+svg.append("g")
+  	.attr("class", "x axis")
+  	.attr("transform", "translate(0," + height + ")")
+  	.call(xAxis);
+
+svg.selectAll(".layer")
+	.attr("opacity", 1.0)
+	.on("mouseover", function(d, i) {
+		svg.selectAll(".layer").transition()
+		.duration(200)
+		.attr("opacity", function(d, j) {
+    			return j != i ? 0.4 : 1;
+    		})
+    	})
+    	.on("mousemove", function(d, i) {
+	
+	    	mouseXpos = d3.mouse(this);
+	    	mouseXpos = mouseXpos[0];
+	
+	    	var invertedXpos = x.invert(mouseXpos);
+	    	var currentYear = invertedXpos.getFullYear();
+	    	var currentValueIndex = (currentYear-1971) + 1;
+	    	var currentValue = d.values[currentValueIndex].value;
+
+	    	var yOffset = d3.mouse(this)[1] - 15;
+	    	console.log(yOffset);
+	    	if (	yOffset <= 90)
+	    		yOffset = 90;
+
+	    	d3.select("#tooltip")
+	    		.style("left", d3.mouse(this)[0] + 35 + "px")
+	    		.style("top", yOffset + "px")
+	    		.select("#value")
+	    		.text(currentYear + ": " + d.key + " " + currentValue);
+	    	
+	    	d3.select("#tooltip")
+	    		.classed("hidden", false);
+	    		
+	    d3.select("#xLine")
+  			.classed("hidden", false)
+  			.style("left", mouseXpos + "px");	 
+    })
+    .on("mouseout", function(d, i) {
+		svg.selectAll(".layer")
+    			.transition()
+    			.duration(250)
+    			.attr("opacity", "1.0");
+     	
+    		d3.select("#tooltip")
+    			.classed("hidden", true);
+})
+   
+d3.select(".chart")
+	.on("mousemove", function() {  
+  		mouseXpos = d3.mouse(this);
+  		mouseXpos = mouseXpos[0] + 5;
+  		d3.select("#xLine")
+  		  	.classed("hidden", false)
+  			.style("left", mouseXpos + "px");	      
+
+  	})
+  	.on("mouseover", function() {  
+  		mouseXpos = d3.mouse(this);
+  		mouseXpos = mouseXpos[0] ;
+  		d3.select("#xLine")
+  			.classed("hidden", false)
+  			.style("left", mouseXpos + "px");	      
+  	})
+  	.on("mouseout", function() {
+		d3.select("#xLine")
+			.classed("hidden", true);
+		d3.select("#tooltip")
+    			.classed("hidden", true);		      
+  	});
+});
+</script>

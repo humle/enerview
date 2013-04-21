@@ -1,0 +1,48 @@
+@charset "UTF-8";
+body {
+	background-image: url(image/map.png);
+	background-position: -10px -10px;	
+}
+#sourceButtons {
+	position:relative;
+	margin-left: 50px;	
+	
+}
+
+.MasterButton {
+	position:relative;
+	height: 80px;
+	width: 80px;
+	background-size:80px 80px;
+	background-repeat:no-repeat;
+	background-position: center;
+	margin:auto 0 auto 0;
+	display:inline-block;
+}
+
+.SlaveButton {
+	position:absolute;
+	height: 80px;
+	width: 80px;
+	background-size:50px 50px;
+	background-repeat:no-repeat;
+	background-position: center;
+	margin: auto;
+	left:10;
+	display:inline-block;
+}
+
+
+#green {
+	background-image: url(image/green.png);
+}
+#wind {
+	background-image: url(image/wind_grey.png);
+}
+#hydro {
+	background-image: url(image/hydro_grey.png);
+}
+
+#thermo {
+	background-image: url(image/thermo_grey.png);
+}

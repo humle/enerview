@@ -1,0 +1,113 @@
+<!DOCTYPE>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<!-- scripts -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+	
+	<script> 
+
+	
+	$(document).ready(function(){
+		var buttons = ["green", "hydro","wind", "thermo"];
+		var bValue = 0;
+		$("#green").addClass("MasterButton");
+		$("#hydro").addClass("SlaveButton");
+		$("#wind").addClass("SlaveButton");
+		$("#thermo").addClass("SlaveButton");
+		
+ 		$(".MasterButton").click(function(){
+			if(bValue==0){							  
+				for ( var i = 0; i < buttons.length; i++ ) {
+ 					var obj=document.getElementById(buttons[i]);
+					var dis=i*100;
+					$(obj).animate({left: dis+'px'},"slow");
+				}
+				bValue=1;
+			}else{	
+				for ( var i = 0; i < buttons.length; i++ ) {
+ 					var obj=document.getElementById(buttons[i]);
+					$(obj).animate({left:'0px'},"slow");
+				}
+				bValue=0;
+			}
+		});
+		$(".SlaveButton").click(function(){
+			var old=buttons[0];
+			var pos1=buttons.indexOf(this.id);
+			if(pos1>0){
+				buttons[0]=this.id;
+				buttons[pos1]=old;
+				//var obj1=document.getElementById(this.id);
+				//var obj2=document.getElementById(old);
+				
+				
+				
+				$("#"+this.id).addClass("MasterButton");
+				$("#"+this.id).removeClass("SlaveButton");
+				
+				$("#"+old).addClass("SlaveButton");
+				$("#"+old).removeClass("MasterButton");
+				loadIcon();
+				
+				for ( var i = 0; i < buttons.length; i++ ) {
+					var obj=document.getElementById(buttons[i]);
+					$(obj).animate({left:'0px'},"slow");
+				}
+				
+				
+				$("#"+this.id).css("background-image", 'url(image/'+buttons[0]+'.png)')
+				bValue=0;
+			}
+		});
+		$(".SlaveButton").mouseover(function(){
+			var obj1=document.getElementById(this.id);								 
+			$(obj1).css("background-image", 'url(image/'+this.id+'.png)')
+
+		});
+		$(".SlaveButton").mouseout(function(){
+			var obj1=document.getElementById(this.id);								 
+			$(obj1).css("background-image", 'url(image/'+this.id+'_grey.png)')
+
+		});
+		function loadIcon()
+		{
+			for ( var i = 0; i < buttons.length; i++ ) {
+ 				var obj=document.getElementById(buttons[i]);
+				//if(i=0) $(obj).css("background-image", 'url(image/'+buttons[i]+'.png)')
+				if(i<buttons.length-1){
+ 					var obj2=document.getElementById(buttons[i+1]);
+					jQuery(obj).before(jQuery(obj2));
+					$(obj2).css("background-image", 'url(image/'+buttons[i]+'_grey.png)')	
+				}
+			}
+		}
+
+
+	});
+</script> 
+
+</head>
+
+<body>
+
+
+
+<div id="sourceButtons">
+	<div  id="hydro"></div>
+	<div  id="wind"></div>
+    <div  id="thermo"></div>
+	<div  id="green"></div>	
+	
+</div>
+
+<footer></footer>
+</body>
+</html>
